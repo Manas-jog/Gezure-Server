@@ -10,6 +10,16 @@ var users = require('./routes/users');
 
 var app = express();
 
+//mongoose
+var mongoose = require('mongoose');
+
+var db = mongoose.connection;
+
+db.on('error', console.error);
+db.once('open', function() {
+  // Create your schemas and models here.
+});
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
