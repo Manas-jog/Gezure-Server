@@ -5,20 +5,23 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var routes = require('./routes/index');
-var users = require('./routes/users');
-
+var config = require('./config')
 var app = express();
 
 //mongoose
 var mongoose = require('mongoose');
-
+mongoose.set('debug', true);
+mongoose.connect(config.database.machine + config.database.DBName);
 var db = mongoose.connection;
 
 db.on('error', console.error);
 db.once('open', function() {
-  // Create your schemas and models here.
+    console.log('connected!');
+    var user = require('./models/user');    
 });
+
+var routes = require('./routes/index');
+var users = require('./routes/users');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -67,5 +70,9 @@ app.use(function(err, req, res, next) {
     });
 });
 
+app.set('port', process.env.PORT || config.default.port);
+var server = app.listen(app.get('port'), function() {
+       console.log('Listening @port:' + server.address().port);
+});
 
 module.exports = app;
