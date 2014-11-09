@@ -3,11 +3,6 @@ Schema = mongoose.Schema;
 
 BucketSchema = new Schema(
 	{
-		bucketId: {
-			type: String,
-			required: true
-		},
-
 		title: {
 			type: String,
 			required: true
@@ -17,4 +12,4 @@ BucketSchema = new Schema(
 	}
 );
 
-Bucket = mongoose.model('Bucket', BucketSchema);
+module.exports = mongoose.model('Bucket', BucketSchema);
