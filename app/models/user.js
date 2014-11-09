@@ -9,11 +9,7 @@ var UserSchema = new Schema ({
 
 	devices: [String],
 
-	currentDevice: {
-		type: Number,
-		min: 0,
-		max: 5
-	},
+	currentDevice: String,
 
 	buckets: [
 		{

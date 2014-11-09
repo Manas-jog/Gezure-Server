@@ -19,11 +19,15 @@ router.get('/login', function(req,res) {
     return res.json({error: 'Invalid parameters given!'});
 
   User.findOne({userId: userId}, 'userId devices', function(err, user) {
-      if (err)
+      if (err) {
         console.log(err);
+        return res.json({error: err});
+      }
+
       else {
         //if user exists
         if (user) {
+          console.log('User exists');
           //check if this device exists.
           devices = user.devices;
           index = devices.indexOf(deviceId);
@@ -32,13 +36,23 @@ router.get('/login', function(req,res) {
           if (index == -1) {
             user.devices.push(deviceId);
             user.currentDevice = deviceId;
-            user.save(function() {console.log('Updated!');});
+            user.save(function() 
+              {
+                console.log('Updated!');
+                return res.json({message: 'Added new device for user'});
+              }
+            );
           }
           else {
             console.log('Already exists');
             //update current device
             user.currentDevice = deviceId;
-            user.save(function() {console.log('Switched user to new device!')});
+            user.save(function() 
+              {
+                console.log('Switched user to new device!');
+                return res.json({message: 'updated current device'});
+              }
+            );
           }
         }
         else {
@@ -49,11 +63,14 @@ router.get('/login', function(req,res) {
             currentDevice: deviceId,
             buckets: []
           });
-          newUser.save(function() {console.log('done!');});
+          newUser.save(function() 
+            {
+              console.log('done!');
+              return res.json({message: 'Added user to database'});
+            }
+          );
         }
       }
-
-     return res.json({empty: true});  
   });
 
 });
@@ -63,16 +80,16 @@ router.get('/:user_id/get_bucket_list', function(req,res) {
 });
 
 router.get('/gestures', function(req,res) {
-   console.log(req.params.gesture);
-   console.log(req.params.user_id);
+   console.log(req.query.gesture);
+   console.log(req.query.user_id);
 
    var message = new gcm.Message();
-   message.addData('test', req.params.gesture);
+   message.addData('test', req.query.gesture);
    message.delayWhileIdle = true;
    message.timeToLive = 3;
    message.dryRun = true;
 
-   User.findOne({userId: userId}, 'userId devices', function(err, user) {
+   User.findOne({userId: req.query.user_id}, 'userId devices currentDevice', function(err, user) {
       if (user) {
         devices = user.devices;
         if (devices.length <= 1)
@@ -81,7 +98,7 @@ router.get('/gestures', function(req,res) {
           //switch user to new device - in any order
           currentDevice = user.currentDevice;
           for (var i = 0; i < devices.length; i++) {
-            if (!devices[i].equals(currentDevice)) {
+            if (!(devices[i] === currentDevice)) {
               user.currentDevice = devices[i]; //update current device set
               user.save( function() 
                 {         
@@ -99,10 +116,10 @@ router.get('/gestures', function(req,res) {
               break;
             }
           }
-        }
-      }
+        } }
       else
         return res.json({error: 'User not registered with given id!!'});
+    });
 });
 
 router.get('/:user_id/videos/:bucket_id', function(req,res) {
