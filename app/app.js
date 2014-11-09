@@ -17,7 +17,7 @@ var db = mongoose.connection;
 db.on('error', console.error);
 db.once('open', function() {
     console.log('connected!');
-    var user = require('./models/user');    
+    var user = require('./models/user');
 });
 
 var routes = require('./routes/index');
